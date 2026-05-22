@@ -1,3 +1,6 @@
+let gameTime = 30;
+let gameInterval;
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -24,26 +27,62 @@ const player = {
 let keys = [];
 let items = [];
 
+/* =========================
+   INPUT
+========================= */
 document.addEventListener("keydown", e => keys[e.key] = true);
 document.addEventListener("keyup", e => keys[e.key] = false);
 
-/* START GAME */
+/* =========================
+   START GAME (30 SEC MODE)
+========================= */
 function startGame() {
     document.getElementById("landing").style.display = "none";
     document.getElementById("hud").style.display = "block";
+    document.getElementById("gameOver").style.display = "none";
+
     gameRunning = true;
+
+    score = 0;
+    health = 3;
+    items = [];
+
+    gameTime = 30;
+
+    document.getElementById("mode").innerText = "FRIDAY 5:00 PM RUSH";
+
+    clearInterval(gameInterval);
+
+    gameInterval = setInterval(() => {
+        gameTime--;
+
+        document.getElementById("mode").innerText =
+            `TIME LEFT: ${gameTime}s`;
+
+        if (gameTime <= 0) {
+            endGame(true);
+        }
+    }, 1000);
 }
 
-/* RESTART */
+/* =========================
+   RESTART
+========================= */
 function restartGame() {
     score = 0;
     health = 3;
     items = [];
-    gameRunning = true;
+    slow = false;
+    gameTime = 30;
+
     document.getElementById("gameOver").style.display = "none";
+
+    startGame();
 }
 
-/* SPAWN ITEMS */
+/* =========================
+   SPAWN ITEMS
+========================= */
 function spawn() {
     if (!gameRunning) return;
 
@@ -69,7 +108,9 @@ function spawn() {
 
 setInterval(spawn, 800);
 
-/* UPDATE */
+/* =========================
+   UPDATE
+========================= */
 function update() {
     if (!gameRunning) return;
 
@@ -97,13 +138,17 @@ function update() {
         if (item.y > canvas.height) items.splice(i, 1);
     });
 
-    if (health <= 0) gameOver();
+    if (health <= 0) {
+        endGame(false);
+    }
 
     document.getElementById("score").innerText = score;
     document.getElementById("health").innerText = "❤️".repeat(health);
 }
 
-/* DRAW */
+/* =========================
+   DRAW
+========================= */
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -116,14 +161,18 @@ function draw() {
     });
 }
 
-/* LOOP */
+/* =========================
+   LOOP
+========================= */
 function loop() {
     update();
     draw();
     requestAnimationFrame(loop);
 }
 
-/* COFFEE MODE */
+/* =========================
+   COFFEE MODE
+========================= */
 function activateSlow() {
     slow = true;
     document.getElementById("mode").innerText = "COFFEE MODE ☕";
@@ -134,13 +183,28 @@ function activateSlow() {
     }, 4000);
 }
 
-/* GAME OVER */
-function gameOver() {
+/* =========================
+   GAME OVER (NEW)
+========================= */
+function endGame(survived) {
     gameRunning = false;
+
+    clearInterval(gameInterval);
+
     document.getElementById("gameOver").style.display = "flex";
+
+    if (survived) {
+        document.querySelector("#gameOver h1").innerText =
+            "FRIDAY 5:00 PM SURVIVED!";
+    } else {
+        document.querySelector("#gameOver h1").innerText =
+            "SYSTEM FAILURE";
+    }
 }
 
-/* TOUCH SUPPORT */
+/* =========================
+   TOUCH SUPPORT
+========================= */
 let touchX = null;
 
 canvas.addEventListener("touchstart", e => {
@@ -153,5 +217,7 @@ canvas.addEventListener("touchmove", e => {
     touchX = x;
 });
 
-/* START LOOP */
+/* =========================
+   START LOOP
+========================= */
 loop();
