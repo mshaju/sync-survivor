@@ -193,6 +193,9 @@ function endGame(survived) {
 
     document.getElementById("gameOver").style.display = "flex";
 
+    // ✅ ADD THIS HERE (after game over is shown)
+    document.getElementById("finalScore").innerText = score;
+
     if (survived) {
         document.querySelector("#gameOver h1").innerText =
             "FRIDAY 5:00 PM SURVIVED!";
