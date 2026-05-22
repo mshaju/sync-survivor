@@ -1,5 +1,6 @@
 let gameTime = 30;
 let gameInterval;
+let spawnInterval;
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -13,6 +14,8 @@ window.addEventListener("resize", () => {
 });
 
 let gameRunning = false;
+let gameEnded = false; // ✅ prevents double endGame calls
+
 let score = 0;
 let health = 3;
 let slow = false;
@@ -34,7 +37,7 @@ document.addEventListener("keydown", e => keys[e.key] = true);
 document.addEventListener("keyup", e => keys[e.key] = false);
 
 /* =========================
-   START GAME (30 SEC MODE)
+   START GAME
 ========================= */
 function startGame() {
     document.getElementById("landing").style.display = "none";
@@ -42,18 +45,24 @@ function startGame() {
     document.getElementById("gameOver").style.display = "none";
 
     gameRunning = true;
+    gameEnded = false;
 
     score = 0;
     health = 3;
     items = [];
+    slow = false;
 
     gameTime = 30;
 
     document.getElementById("mode").innerText = "FRIDAY 5:00 PM RUSH";
 
     clearInterval(gameInterval);
+    clearInterval(spawnInterval);
 
+    // ⏱ TIMER
     gameInterval = setInterval(() => {
+        if (!gameRunning) return;
+
         gameTime--;
 
         document.getElementById("mode").innerText =
@@ -63,19 +72,17 @@ function startGame() {
             endGame(true);
         }
     }, 1000);
+
+    // 🎯 SPAWN CONTROLLED
+    spawnInterval = setInterval(spawn, 800);
 }
 
 /* =========================
    RESTART
 ========================= */
 function restartGame() {
-    score = 0;
-    health = 3;
-    items = [];
-    slow = false;
-    gameTime = 30;
-
-    document.getElementById("gameOver").style.display = "none";
+    clearInterval(gameInterval);
+    clearInterval(spawnInterval);
 
     startGame();
 }
@@ -105,8 +112,6 @@ function spawn() {
         speed: slow ? 2 : 4 + Math.random() * 3
     });
 }
-
-setInterval(spawn, 800);
 
 /* =========================
    UPDATE
@@ -184,17 +189,22 @@ function activateSlow() {
 }
 
 /* =========================
-   GAME OVER (NEW)
+   GAME OVER (FIXED)
 ========================= */
 function endGame(survived) {
+    if (gameEnded) return; // ✅ prevents duplicate calls
+    gameEnded = true;
+
     gameRunning = false;
 
     clearInterval(gameInterval);
+    clearInterval(spawnInterval);
 
+    // ✅ LOCK SCORE BEFORE ANYTHING ELSE
+    const finalScore = score;
+
+    document.getElementById("finalScore").innerText = finalScore;
     document.getElementById("gameOver").style.display = "flex";
-
-    // ✅ ADD THIS HERE (after game over is shown)
-    document.getElementById("finalScore").innerText = score;
 
     if (survived) {
         document.querySelector("#gameOver h1").innerText =
