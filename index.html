@@ -6,318 +6,265 @@
 <title>Sync Survivor</title>
 
 <style>
-    body {
-        margin: 0;
-        font-family: "Segoe UI", Arial, sans-serif;
-        background: #0b0f14;
-        color: #e6f1ff;
-        overflow: hidden;
-    }
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial;
+    background: #0b0f14;
+    color: white;
+    overflow: hidden;
+}
 
-    canvas {
-        display: block;
-        background: linear-gradient(to bottom, #0a0f18, #05070c);
-    }
+canvas {
+    display: block;
+    background: linear-gradient(#0a0f18, #05070c);
+}
 
-    /* ---------- LANDING PAGE ---------- */
-    #landing {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        background: radial-gradient(circle at center, #101826, #05070c);
-        text-align: center;
-        z-index: 50;
-        padding: 20px;
-    }
+/* LANDING */
+#landing {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle, #101826, #05070c);
+    text-align: center;
+    z-index: 50;
+    padding: 20px;
+}
 
-    #landing h1 {
-        font-size: 48px;
-        margin-bottom: 10px;
-        color: #00ff99;
-        letter-spacing: 2px;
-    }
+#landing h1 {
+    color: #00ff99;
+    font-size: 48px;
+}
 
-    #landing p {
-        max-width: 650px;
-        font-size: 16px;
-        line-height: 1.6;
-        opacity: 0.9;
-    }
+button {
+    margin-top: 20px;
+    padding: 12px 24px;
+    border: none;
+    background: #00ff99;
+    font-weight: bold;
+    cursor: pointer;
+}
 
-    .rules {
-        margin-top: 20px;
-        text-align: left;
-        max-width: 600px;
-        background: rgba(255,255,255,0.05);
-        padding: 15px 20px;
-        border-radius: 10px;
-    }
+/* HUD */
+#hud {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    display: none;
+}
 
-    .rules li {
-        margin: 6px 0;
-    }
+/* MOBILE CONTROLS */
+#controls {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 30px;
+    z-index: 20;
+}
 
-    button {
-        margin-top: 25px;
-        padding: 12px 28px;
-        font-size: 18px;
-        border: none;
-        border-radius: 8px;
-        background: #00ff99;
-        color: #000;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.2s;
-    }
+.ctrl {
+    font-size: 40px;
+    user-select: none;
+    opacity: 0.6;
+}
 
-    button:hover {
-        transform: scale(1.05);
-    }
+/* GAME OVER */
+#gameOver {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background: rgba(0,0,0,0.9);
+    z-index: 60;
+}
 
-    /* ---------- HUD ---------- */
-    #hud {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 10;
-        font-size: 16px;
-        line-height: 1.6;
-        text-shadow: 0 0 8px #00ff99;
-        display: none;
-    }
-
-    #message {
-        position: absolute;
-        top: 10px;
-        right: 20px;
-        font-size: 16px;
-        color: #ffcc00;
-        z-index: 10;
-    }
-
-    /* ---------- GAME OVER ---------- */
-    #gameOver {
-        position: absolute;
-        inset: 0;
-        display: none;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        background: rgba(0,0,0,0.92);
-        z-index: 60;
-        text-align: center;
-    }
-
-    #gameOver h1 {
-        font-size: 56px;
-        color: #ff4444;
-    }
-
-    #gameOver p {
-        font-size: 18px;
-        opacity: 0.8;
-    }
+#musicBtn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 100;
+    cursor: pointer;
+}
 </style>
 </head>
 
 <body>
 
-<!-- LANDING PAGE -->
 <div id="landing">
     <h1>SYNC SURVIVOR</h1>
-    <p>
-        Survive the chaos of school IT systems.<br>
-        Catch successful syncs, avoid failures, and try to make it to 5:00 PM Friday.
-    </p>
-
-    <div class="rules">
-        <h3>🎮 How to Play</h3>
-        <ul>
-            <li>🧑‍💻 Move left/right using Arrow Keys or A/D</li>
-            <li>✅ Catch successful syncs to earn points</li>
-            <li>❌ Avoid errors (SQL timeout, null refs, failures)</li>
-            <li>☕ Coffee slows time for 5 seconds</li>
-            <li>💥 Survive as long as possible</li>
-        </ul>
-    </div>
-
-    <button onclick="startGame()">START GAME</button>
+    <p>Catch good syncs, avoid failures, survive Friday 4:59 PM chaos.</p>
+    <button onclick="startGame()">START</button>
 </div>
 
-<!-- HUD -->
 <div id="hud">
-    <div>Score: <span id="score">0</span></div>
-    <div>Health: <span id="health">❤️❤️❤️</span></div>
-    <div>Mode: <span id="mode">READY</span></div>
+    Score: <span id="score">0</span> | ❤️ <span id="health">3</span>
 </div>
 
-<div id="message"></div>
+<div id="musicBtn" onclick="toggleMusic()">🎵</div>
 
-<!-- GAME OVER -->
 <div id="gameOver">
-    <h1>SYSTEM FAILURE</h1>
-    <p>The weekend has been cancelled.</p>
-    <button onclick="restartGame()">Restart</button>
+    <h1>System Failure</h1>
+    <button onclick="restart()">Restart</button>
 </div>
 
-<canvas id="game"></canvas>
+<div id="controls">
+    <div class="ctrl" ontouchstart="left=true" ontouchend="left=false">⬅️</div>
+    <div class="ctrl" ontouchstart="right=true" ontouchend="right=false">➡️</div>
+</div>
+
+<canvas id="c"></canvas>
 
 <script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+const c = document.getElementById("c");
+const ctx = c.getContext("2d");
+c.width = innerWidth;
+c.height = innerHeight;
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-let gameStarted = false;
-
-const player = {
-    x: canvas.width / 2,
-    y: canvas.height - 100,
-    width: 60,
-    height: 60,
-    speed: 7
-};
-
-let keys = {};
+let started = false;
 let items = [];
+let particles = [];
 let score = 0;
 let health = 3;
-let gameRunning = false;
-let slowMotion = false;
+let boss = false;
 
-const messages = [
-    "Have you cleared cache?",
-    "Restarting SBSync...",
-    "Linked server timeout detected.",
-    "SchoolBox sync delayed.",
-    "Friday 4:59 PM panic detected."
-];
+let left=false,right=false;
 
-document.addEventListener("keydown", e => keys[e.key] = true);
-document.addEventListener("keyup", e => keys[e.key] = false);
+const player = {x:c.width/2,y:c.height-100};
 
-function startGame() {
-    document.getElementById("landing").style.display = "none";
-    document.getElementById("hud").style.display = "block";
+let audioCtx = new AudioContext();
+let musicOn = false;
+let musicOsc;
 
-    gameStarted = true;
-    gameRunning = true;
+function beep(freq,duration,type="sine"){
+    let o = audioCtx.createOscillator();
+    let g = audioCtx.createGain();
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.frequency.value=freq;
+    o.type=type;
+    o.start();
+    g.gain.setValueAtTime(0.2,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+duration);
+    o.stop(audioCtx.currentTime+duration);
 }
 
-function spawnItem() {
-    if (!gameRunning) return;
+function toggleMusic(){
+    musicOn=!musicOn;
+    if(musicOn){
+        musicOsc=audioCtx.createOscillator();
+        let g=audioCtx.createGain();
+        musicOsc.connect(g);
+        g.connect(audioCtx.destination);
+        musicOsc.frequency.value=120;
+        musicOsc.type="sawtooth";
+        g.gain.value=0.03;
+        musicOsc.start();
+    }else{
+        musicOsc.stop();
+    }
+}
 
-    const types = [
-        { emoji: "✅", type: "good" },
-        { emoji: "💾", type: "good" },
-        { emoji: "📘", type: "good" },
+function startGame(){
+    document.getElementById("landing").style.display="none";
+    document.getElementById("hud").style.display="block";
+    started=true;
+    loop();
+    spawn();
+}
 
-        { emoji: "❌", type: "bad" },
-        { emoji: "⚠️", type: "bad" },
-        { emoji: "💥", type: "bad" },
+function spawn(){
+    if(!started) return;
 
-        { emoji: "☕", type: "coffee" }
+    let types=[
+        {e:"✅",t:"good"},
+        {e:"❌",t:"bad"},
+        {e:"💾",t:"good"},
+        {e:"☕",t:"coffee"}
     ];
 
-    const item = types[Math.floor(Math.random() * types.length)];
+    if(score>200 && !boss){
+        boss=true;
+        types.push({e:"👨‍🏫",t:"boss"});
+    }
+
+    let it=types[Math.random()*types.length|0];
 
     items.push({
-        x: Math.random() * (canvas.width - 50),
-        y: -50,
-        width: 50,
-        height: 50,
-        emoji: item.emoji,
-        type: item.type,
-        speed: slowMotion ? 2 : 4 + Math.random() * 3
+        x:Math.random()*c.width,
+        y:-20,
+        e:it.e,
+        t:it.t,
+        sp: boss?6:3+Math.random()*3
     });
+
+    setTimeout(spawn, boss?400:700);
 }
 
-setInterval(spawnItem, 700);
+function explode(x,y,color){
+    for(let i=0;i<10;i++){
+        particles.push({
+            x,y,
+            vx:(Math.random()-0.5)*4,
+            vy:(Math.random()-0.5)*4,
+            life:30,
+            color
+        });
+    }
+}
 
-function update() {
-    if (!gameRunning) return;
+function loop(){
+    if(!started) return;
 
-    if (keys["ArrowLeft"] || keys["a"]) player.x -= player.speed;
-    if (keys["ArrowRight"] || keys["d"]) player.x += player.speed;
+    ctx.clearRect(0,0,c.width,c.height);
 
-    player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+    if(left)player.x-=6;
+    if(right)player.x+=6;
 
-    items.forEach((item, index) => {
-        item.y += item.speed;
+    ctx.font="40px Arial";
+    ctx.fillText("🧑‍💻",player.x,player.y);
 
-        if (
-            item.x < player.x + player.width &&
-            item.x + item.width > player.x &&
-            item.y < player.y + player.height &&
-            item.y + item.height > player.y
-        ) {
-            if (item.type === "good") score += 10;
-            if (item.type === "bad") { health--; flash(); }
-            if (item.type === "coffee") activateSlow();
+    items.forEach((i,idx)=>{
+        i.y+=i.sp;
+        ctx.fillText(i.e,i.x,i.y);
 
-            items.splice(index, 1);
+        if(Math.abs(i.x-player.x)<30 && Math.abs(i.y-player.y)<30){
+            if(i.t=="good"){score+=10;beep(600,0.1);explode(i.x,i.y,"green");}
+            if(i.t=="bad"){health--;beep(200,0.2,"square");explode(i.x,i.y,"red");}
+            if(i.t=="coffee"){beep(900,0.15);explode(i.x,i.y,"yellow");}
+            if(i.t=="boss"){health-=2;beep(100,0.5,"sawtooth");}
+
+            items.splice(idx,1);
         }
-
-        if (item.y > canvas.height) items.splice(index, 1);
     });
 
-    if (health <= 0) endGame();
-
-    document.getElementById("score").innerText = score;
-    document.getElementById("health").innerText = "❤️".repeat(health);
-}
-
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.font = "50px Arial";
-    ctx.fillText("🧑‍💻", player.x, player.y);
-
-    items.forEach(i => {
-        ctx.font = "40px Arial";
-        ctx.fillText(i.emoji, i.x, i.y);
+    particles.forEach((p,i)=>{
+        p.x+=p.vx;
+        p.y+=p.vy;
+        p.life--;
+        ctx.fillStyle=p.color;
+        ctx.fillRect(p.x,p.y,3,3);
+        if(p.life<=0)particles.splice(i,1);
     });
+
+    document.getElementById("score").innerText=score;
+    document.getElementById("health").innerText=health;
+
+    if(health<=0){
+        document.getElementById("gameOver").style.display="flex";
+        started=false;
+    }
+
+    requestAnimationFrame(loop);
 }
 
-function gameLoop() {
-    update();
-    draw();
-    requestAnimationFrame(gameLoop);
-}
-
-function activateSlow() {
-    slowMotion = true;
-    document.getElementById("mode").innerText = "COFFEE BOOST ☕";
-
-    setTimeout(() => {
-        slowMotion = false;
-        document.getElementById("mode").innerText = "NORMAL";
-    }, 5000);
-}
-
-function flash() {
-    document.body.style.background = "#330000";
-    setTimeout(() => document.body.style.background = "#0b0f14", 100);
-}
-
-function endGame() {
-    gameRunning = false;
-    document.getElementById("gameOver").style.display = "flex";
-}
-
-function restartGame() {
-    score = 0;
-    health = 3;
-    items = [];
-    gameRunning = true;
-    document.getElementById("gameOver").style.display = "none";
-}
-
-gameLoop();
+function restart(){location.reload();}
 </script>
 
 </body>
