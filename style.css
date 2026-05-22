@@ -6,12 +6,15 @@ body {
     color: white;
 }
 
+/* GAME CANVAS */
 canvas {
     display: block;
     background: linear-gradient(180deg, #05070c, #0b1a2a);
 }
 
-/* LANDING */
+/* =========================
+   LANDING SCREEN
+========================= */
 #landing {
     position: absolute;
     inset: 0;
@@ -21,43 +24,103 @@ canvas {
     align-items: center;
     background: rgba(0,0,0,0.9);
     text-align: center;
+    padding: 20px;
 }
 
 #landing h1 {
     font-size: 48px;
     color: #00ff99;
+    margin-bottom: 10px;
 }
 
+#landing p {
+    max-width: 600px;
+    line-height: 1.5;
+    opacity: 0.9;
+    margin: 10px 20px;
+}
+
+/* =========================
+   LEGEND (GAME RULES)
+========================= */
+.legend {
+    margin-top: 20px;
+    width: 90%;
+    max-width: 420px;
+}
+
+.legend h3 {
+    color: #00ff99;
+    margin-bottom: 12px;
+    font-size: 18px;
+}
+
+.legend-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 8px 0;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(0,255,153,0.15);
+    border-radius: 10px;
+}
+
+.legend .icon {
+    font-size: 18px;
+}
+
+/* =========================
+   BUTTON (START GAME)
+========================= */
 button {
-    padding: 12px 24px;
+    margin-top: 20px;
+    padding: 14px 28px;
     font-size: 18px;
     border: none;
-    border-radius: 10px;
-    background: #00ff99;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #00ff99, #00ccff);
+    color: #000;
+    font-weight: bold;
     cursor: pointer;
+    box-shadow: 0 0 15px rgba(0,255,153,0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* HUD */
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(0,255,153,0.7);
+}
+
+/* =========================
+   HUD (SCORE / HEALTH)
+========================= */
 #hud {
     position: absolute;
     top: 10px;
     left: 10px;
-    z-index: 10;
+    z-index: 20;
     display: none;
     background: rgba(0,0,0,0.4);
     padding: 10px;
     border-radius: 10px;
+    backdrop-filter: blur(6px);
 }
 
-/* MESSAGE */
+/* =========================
+   MESSAGE
+========================= */
 #message {
     position: absolute;
     top: 10px;
     right: 20px;
     color: yellow;
+    z-index: 15;
 }
 
-/* GAME OVER */
+/* =========================
+   GAME OVER SCREEN
+========================= */
 #gameOver {
     position: absolute;
     inset: 0;
@@ -66,4 +129,18 @@ button {
     align-items: center;
     flex-direction: column;
     background: rgba(0,0,0,0.9);
+    text-align: center;
+}
+
+#gameOver h1 {
+    color: red;
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+/* =========================
+   SMALL POLISH
+========================= */
+* {
+    box-sizing: border-box;
 }
