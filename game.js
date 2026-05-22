@@ -52,7 +52,7 @@ function startGame() {
 
     gameTime = 30;
 
-    document.getElementById("mode").innerText = "FRIDAY 5:00 PM RUSH";
+    document.getElementById("mode").innerText = "30s SYNC APOCALYPSE STARTED";
 
     clearInterval(gameInterval);
     clearInterval(spawnInterval);
@@ -71,7 +71,7 @@ function startGame() {
         }
     }, 1000);
 
-    // 🎯 SPAWN CONTROL
+    // 🎯 SPAWN
     spawnInterval = setInterval(spawn, 800);
 }
 
@@ -112,7 +112,7 @@ function spawn() {
 }
 
 /* =========================
-   UPDATE
+   UPDATE (FIXED LOGIC)
 ========================= */
 function update() {
     if (!gameRunning) return;
@@ -125,19 +125,31 @@ function update() {
     items.forEach((item, i) => {
         item.y += item.speed;
 
+        // COLLISION DETECTION
         if (
             item.x < player.x + player.size &&
             item.x + 40 > player.x &&
             item.y < player.y + player.size &&
             item.y + 40 > player.y
         ) {
-            if (item.type === "good") score += 10;
-            if (item.type === "bad") score -= 5;
-            if (item.type === "coffee") activateSlow();
+            if (item.type === "good") {
+                score += 10;
+            }
+
+            if (item.type === "coffee") {
+                activateSlow();
+            }
+
+            // ❌ BAD ITEM = INSTANT GAME OVER
+            if (item.type === "bad") {
+                endGame(false);
+                return;
+            }
 
             items.splice(i, 1);
         }
 
+        // remove if missed
         if (item.y > canvas.height) items.splice(i, 1);
     });
 
@@ -203,7 +215,7 @@ function endGame(survived) {
 }
 
 /* =========================
-   TOUCH SUPPORT
+   TOUCH SUPPORT (FIXED)
 ========================= */
 let touchX = null;
 
@@ -213,8 +225,9 @@ canvas.addEventListener("touchstart", e => {
 
 canvas.addEventListener("touchmove", e => {
     let x = e.touches[0].clientX;
-    player.x += (x - touchX);
-    touchX = x;
+
+    // FIXED: direct positioning (no drift)
+    player.x = x - player.size / 2;
 });
 
 /* =========================
