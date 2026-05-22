@@ -14,10 +14,9 @@ window.addEventListener("resize", () => {
 });
 
 let gameRunning = false;
-let gameEnded = false; // ✅ prevents double endGame calls
+let gameEnded = false;
 
 let score = 0;
-let health = 3;
 let slow = false;
 
 const player = {
@@ -37,7 +36,7 @@ document.addEventListener("keydown", e => keys[e.key] = true);
 document.addEventListener("keyup", e => keys[e.key] = false);
 
 /* =========================
-   START GAME
+   START GAME (30s MODE)
 ========================= */
 function startGame() {
     document.getElementById("landing").style.display = "none";
@@ -48,7 +47,6 @@ function startGame() {
     gameEnded = false;
 
     score = 0;
-    health = 3;
     items = [];
     slow = false;
 
@@ -73,7 +71,7 @@ function startGame() {
         }
     }, 1000);
 
-    // 🎯 SPAWN CONTROLLED
+    // 🎯 SPAWN
     spawnInterval = setInterval(spawn, 800);
 }
 
@@ -134,7 +132,7 @@ function update() {
             item.y + 40 > player.y
         ) {
             if (item.type === "good") score += 10;
-            if (item.type === "bad") health--;
+            if (item.type === "bad") score -= 5; // optional risk mechanic
             if (item.type === "coffee") activateSlow();
 
             items.splice(i, 1);
@@ -143,12 +141,7 @@ function update() {
         if (item.y > canvas.height) items.splice(i, 1);
     });
 
-    if (health <= 0) {
-        endGame(false);
-    }
-
     document.getElementById("score").innerText = score;
-    document.getElementById("health").innerText = "❤️".repeat(health);
 }
 
 /* =========================
@@ -189,10 +182,10 @@ function activateSlow() {
 }
 
 /* =========================
-   GAME OVER (FIXED)
+   GAME OVER
 ========================= */
 function endGame(survived) {
-    if (gameEnded) return; // ✅ prevents duplicate calls
+    if (gameEnded) return;
     gameEnded = true;
 
     gameRunning = false;
@@ -200,10 +193,7 @@ function endGame(survived) {
     clearInterval(gameInterval);
     clearInterval(spawnInterval);
 
-    // ✅ LOCK SCORE BEFORE ANYTHING ELSE
-    const finalScore = score;
-
-    document.getElementById("finalScore").innerText = finalScore;
+    document.getElementById("finalScore").innerText = score;
     document.getElementById("gameOver").style.display = "flex";
 
     if (survived) {
