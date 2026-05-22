@@ -1,4 +1,4 @@
-# 🎮 Sync Survivor
+# 🎮 Syncocalypse
 
 A survival arcade game inspired by real-world IT system chaos.
 
