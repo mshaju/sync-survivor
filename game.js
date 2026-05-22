@@ -30,7 +30,7 @@ const player = {
     x: GAME_WIDTH / 2,
     y: GAME_HEIGHT - 80,
     size: 50,
-    speed: 12
+    speed: 9
 };
 
 let keys = [];
