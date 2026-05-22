@@ -2,28 +2,35 @@ let gameTime = 30;
 let gameInterval;
 let spawnInterval;
 
+/* =========================
+   FIXED GAME ARENA SIZE
+========================= */
+const GAME_WIDTH = 900;
+const GAME_HEIGHT = 500;
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width = GAME_WIDTH;
+canvas.height = GAME_HEIGHT;
 
-window.addEventListener("resize", () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-});
-
+/* =========================
+   STATE
+========================= */
 let gameRunning = false;
 let gameEnded = false;
 
 let score = 0;
 let slow = false;
 
+/* =========================
+   PLAYER (faster + tighter feel)
+========================= */
 const player = {
-    x: 200,
-    y: canvas.height - 120,
+    x: GAME_WIDTH / 2,
+    y: GAME_HEIGHT - 80,
     size: 50,
-    speed: 8
+    speed: 12
 };
 
 let keys = [];
@@ -36,7 +43,7 @@ document.addEventListener("keydown", e => keys[e.key] = true);
 document.addEventListener("keyup", e => keys[e.key] = false);
 
 /* =========================
-   START GAME (30s MODE)
+   START GAME
 ========================= */
 function startGame() {
     document.getElementById("landing").style.display = "none";
@@ -57,7 +64,7 @@ function startGame() {
     clearInterval(gameInterval);
     clearInterval(spawnInterval);
 
-    // ⏱ TIMER
+    /* TIMER */
     gameInterval = setInterval(() => {
         if (!gameRunning) return;
 
@@ -71,8 +78,8 @@ function startGame() {
         }
     }, 1000);
 
-    // 🎯 SPAWN
-    spawnInterval = setInterval(spawn, 800);
+    /* SPAWN (harder now) */
+    spawnInterval = setInterval(spawn, 500);
 }
 
 /* =========================
@@ -81,7 +88,6 @@ function startGame() {
 function restartGame() {
     clearInterval(gameInterval);
     clearInterval(spawnInterval);
-
     startGame();
 }
 
@@ -103,16 +109,16 @@ function spawn() {
     const item = types[Math.floor(Math.random() * types.length)];
 
     items.push({
-        x: Math.random() * canvas.width,
+        x: Math.random() * GAME_WIDTH,
         y: -50,
         emoji: item.emoji,
         type: item.type,
-        speed: slow ? 2 : 4 + Math.random() * 3
+        speed: slow ? 3 : 5 + Math.random() * 4   // harder + faster
     });
 }
 
 /* =========================
-   UPDATE (FIXED LOGIC)
+   UPDATE (CORE FIXED LOGIC)
 ========================= */
 function update() {
     if (!gameRunning) return;
@@ -120,12 +126,13 @@ function update() {
     if (keys["ArrowLeft"] || keys["a"]) player.x -= player.speed;
     if (keys["ArrowRight"] || keys["d"]) player.x += player.speed;
 
-    player.x = Math.max(0, Math.min(canvas.width - player.size, player.x));
+    /* clamp inside game arena */
+    player.x = Math.max(0, Math.min(GAME_WIDTH - player.size, player.x));
 
     items.forEach((item, i) => {
         item.y += item.speed;
 
-        // COLLISION DETECTION
+        /* collision */
         if (
             item.x < player.x + player.size &&
             item.x + 40 > player.x &&
@@ -140,7 +147,7 @@ function update() {
                 activateSlow();
             }
 
-            // ❌ BAD ITEM = INSTANT GAME OVER
+            /* ❌ BAD = INSTANT FAIL */
             if (item.type === "bad") {
                 endGame(false);
                 return;
@@ -149,8 +156,8 @@ function update() {
             items.splice(i, 1);
         }
 
-        // remove if missed
-        if (item.y > canvas.height) items.splice(i, 1);
+        /* missed item */
+        if (item.y > GAME_HEIGHT) items.splice(i, 1);
     });
 
     document.getElementById("score").innerText = score;
@@ -160,7 +167,7 @@ function update() {
    DRAW
 ========================= */
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
     ctx.font = "40px Arial";
     ctx.fillText("🧑‍💻", player.x, player.y);
@@ -209,13 +216,11 @@ function endGame(survived) {
     document.getElementById("gameOver").style.display = "flex";
 
     document.querySelector("#gameOver h1").innerText =
-        survived
-            ? "FRIDAY 5:00 PM SURVIVED!"
-            : "SYSTEM FAILURE";
+        survived ? "FRIDAY 5:00 PM SURVIVED!" : "SYSTEM FAILURE";
 }
 
 /* =========================
-   TOUCH SUPPORT (FIXED)
+   TOUCH (FIXED)
 ========================= */
 let touchX = null;
 
@@ -225,12 +230,10 @@ canvas.addEventListener("touchstart", e => {
 
 canvas.addEventListener("touchmove", e => {
     let x = e.touches[0].clientX;
-
-    // FIXED: direct positioning (no drift)
     player.x = x - player.size / 2;
 });
 
 /* =========================
-   START LOOP
+   START GAME LOOP
 ========================= */
 loop();
