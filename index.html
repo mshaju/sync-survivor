@@ -8,36 +8,97 @@
 <style>
     body {
         margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #0b0f14;
+        color: #e6f1ff;
         overflow: hidden;
-        background: #050505;
-        font-family: Consolas, monospace;
-        color: #00ff99;
     }
 
     canvas {
         display: block;
-        background: linear-gradient(to bottom, #0a0a0a, #111);
+        background: linear-gradient(to bottom, #0a0f18, #05070c);
     }
 
+    /* ---------- LANDING PAGE ---------- */
+    #landing {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: radial-gradient(circle at center, #101826, #05070c);
+        text-align: center;
+        z-index: 50;
+        padding: 20px;
+    }
+
+    #landing h1 {
+        font-size: 48px;
+        margin-bottom: 10px;
+        color: #00ff99;
+        letter-spacing: 2px;
+    }
+
+    #landing p {
+        max-width: 650px;
+        font-size: 16px;
+        line-height: 1.6;
+        opacity: 0.9;
+    }
+
+    .rules {
+        margin-top: 20px;
+        text-align: left;
+        max-width: 600px;
+        background: rgba(255,255,255,0.05);
+        padding: 15px 20px;
+        border-radius: 10px;
+    }
+
+    .rules li {
+        margin: 6px 0;
+    }
+
+    button {
+        margin-top: 25px;
+        padding: 12px 28px;
+        font-size: 18px;
+        border: none;
+        border-radius: 8px;
+        background: #00ff99;
+        color: #000;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        transform: scale(1.05);
+    }
+
+    /* ---------- HUD ---------- */
     #hud {
         position: absolute;
         top: 10px;
         left: 10px;
         z-index: 10;
-        font-size: 18px;
-        line-height: 1.8;
+        font-size: 16px;
+        line-height: 1.6;
         text-shadow: 0 0 8px #00ff99;
+        display: none;
     }
 
     #message {
         position: absolute;
         top: 10px;
         right: 20px;
-        font-size: 18px;
+        font-size: 16px;
         color: #ffcc00;
-        text-shadow: 0 0 10px #ffcc00;
+        z-index: 10;
     }
 
+    /* ---------- GAME OVER ---------- */
     #gameOver {
         position: absolute;
         inset: 0;
@@ -45,45 +106,60 @@
         justify-content: center;
         align-items: center;
         flex-direction: column;
-        background: rgba(0,0,0,0.9);
-        color: white;
-        z-index: 20;
+        background: rgba(0,0,0,0.92);
+        z-index: 60;
+        text-align: center;
     }
 
     #gameOver h1 {
-        font-size: 64px;
+        font-size: 56px;
         color: #ff4444;
-        margin: 0;
     }
 
     #gameOver p {
-        font-size: 24px;
-    }
-
-    button {
-        padding: 12px 24px;
         font-size: 18px;
-        border: none;
-        border-radius: 8px;
-        background: #00ff99;
-        cursor: pointer;
-        margin-top: 20px;
+        opacity: 0.8;
     }
 </style>
 </head>
+
 <body>
 
+<!-- LANDING PAGE -->
+<div id="landing">
+    <h1>SYNC SURVIVOR</h1>
+    <p>
+        Survive the chaos of school IT systems.<br>
+        Catch successful syncs, avoid failures, and try to make it to 5:00 PM Friday.
+    </p>
+
+    <div class="rules">
+        <h3>🎮 How to Play</h3>
+        <ul>
+            <li>🧑‍💻 Move left/right using Arrow Keys or A/D</li>
+            <li>✅ Catch successful syncs to earn points</li>
+            <li>❌ Avoid errors (SQL timeout, null refs, failures)</li>
+            <li>☕ Coffee slows time for 5 seconds</li>
+            <li>💥 Survive as long as possible</li>
+        </ul>
+    </div>
+
+    <button onclick="startGame()">START GAME</button>
+</div>
+
+<!-- HUD -->
 <div id="hud">
     <div>Score: <span id="score">0</span></div>
     <div>Health: <span id="health">❤️❤️❤️</span></div>
-    <div>Mode: <span id="mode">NORMAL</span></div>
+    <div>Mode: <span id="mode">READY</span></div>
 </div>
 
 <div id="message"></div>
 
+<!-- GAME OVER -->
 <div id="gameOver">
     <h1>SYSTEM FAILURE</h1>
-    <p>Your weekend has been cancelled.</p>
+    <p>The weekend has been cancelled.</p>
     <button onclick="restartGame()">Restart</button>
 </div>
 
@@ -95,6 +171,8 @@ const ctx = canvas.getContext("2d");
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+
+let gameStarted = false;
 
 const player = {
     x: canvas.width / 2,
@@ -108,23 +186,31 @@ let keys = {};
 let items = [];
 let score = 0;
 let health = 3;
-let gameRunning = true;
+let gameRunning = false;
 let slowMotion = false;
 
 const messages = [
     "Have you cleared cache?",
-    "Works in test environment.",
     "Restarting SBSync...",
-    "Principal marked issue as urgent.",
     "Linked server timeout detected.",
     "SchoolBox sync delayed.",
-    "Friday 4:59 PM deployment."
+    "Friday 4:59 PM panic detected."
 ];
 
 document.addEventListener("keydown", e => keys[e.key] = true);
 document.addEventListener("keyup", e => keys[e.key] = false);
 
+function startGame() {
+    document.getElementById("landing").style.display = "none";
+    document.getElementById("hud").style.display = "block";
+
+    gameStarted = true;
+    gameRunning = true;
+}
+
 function spawnItem() {
+    if (!gameRunning) return;
+
     const types = [
         { emoji: "✅", type: "good" },
         { emoji: "💾", type: "good" },
@@ -152,27 +238,11 @@ function spawnItem() {
 
 setInterval(spawnItem, 700);
 
-function showMessage() {
-    const msg = messages[Math.floor(Math.random() * messages.length)];
-    document.getElementById("message").innerText = msg;
-
-    setTimeout(() => {
-        document.getElementById("message").innerText = "";
-    }, 2000);
-}
-
-setInterval(showMessage, 4000);
-
 function update() {
     if (!gameRunning) return;
 
-    if (keys["ArrowLeft"] || keys["a"]) {
-        player.x -= player.speed;
-    }
-
-    if (keys["ArrowRight"] || keys["d"]) {
-        player.x += player.speed;
-    }
+    if (keys["ArrowLeft"] || keys["a"]) player.x -= player.speed;
+    if (keys["ArrowRight"] || keys["d"]) player.x += player.speed;
 
     player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
 
@@ -185,30 +255,17 @@ function update() {
             item.y < player.y + player.height &&
             item.y + item.height > player.y
         ) {
-            if (item.type === "good") {
-                score += 10;
-            }
-
-            if (item.type === "bad") {
-                health--;
-                flashScreen();
-            }
-
-            if (item.type === "coffee") {
-                activateSlowMotion();
-            }
+            if (item.type === "good") score += 10;
+            if (item.type === "bad") { health--; flash(); }
+            if (item.type === "coffee") activateSlow();
 
             items.splice(index, 1);
         }
 
-        if (item.y > canvas.height) {
-            items.splice(index, 1);
-        }
+        if (item.y > canvas.height) items.splice(index, 1);
     });
 
-    if (health <= 0) {
-        endGame();
-    }
+    if (health <= 0) endGame();
 
     document.getElementById("score").innerText = score;
     document.getElementById("health").innerText = "❤️".repeat(health);
@@ -217,14 +274,12 @@ function update() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // player
     ctx.font = "50px Arial";
     ctx.fillText("🧑‍💻", player.x, player.y);
 
-    // items
-    items.forEach(item => {
+    items.forEach(i => {
         ctx.font = "40px Arial";
-        ctx.fillText(item.emoji, item.x, item.y);
+        ctx.fillText(i.emoji, i.x, i.y);
     });
 }
 
@@ -234,11 +289,9 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-function activateSlowMotion() {
+function activateSlow() {
     slowMotion = true;
     document.getElementById("mode").innerText = "COFFEE BOOST ☕";
-
-    items.forEach(i => i.speed *= 0.4);
 
     setTimeout(() => {
         slowMotion = false;
@@ -246,12 +299,9 @@ function activateSlowMotion() {
     }, 5000);
 }
 
-function flashScreen() {
+function flash() {
     document.body.style.background = "#330000";
-
-    setTimeout(() => {
-        document.body.style.background = "#050505";
-    }, 100);
+    setTimeout(() => document.body.style.background = "#0b0f14", 100);
 }
 
 function endGame() {
