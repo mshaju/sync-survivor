@@ -71,7 +71,7 @@ function startGame() {
         }
     }, 1000);
 
-    // 🎯 SPAWN
+    // 🎯 SPAWN CONTROL
     spawnInterval = setInterval(spawn, 800);
 }
 
@@ -132,7 +132,7 @@ function update() {
             item.y + 40 > player.y
         ) {
             if (item.type === "good") score += 10;
-            if (item.type === "bad") score -= 5; // optional risk mechanic
+            if (item.type === "bad") score -= 5;
             if (item.type === "coffee") activateSlow();
 
             items.splice(i, 1);
@@ -196,13 +196,10 @@ function endGame(survived) {
     document.getElementById("finalScore").innerText = score;
     document.getElementById("gameOver").style.display = "flex";
 
-    if (survived) {
-        document.querySelector("#gameOver h1").innerText =
-            "FRIDAY 5:00 PM SURVIVED!";
-    } else {
-        document.querySelector("#gameOver h1").innerText =
-            "SYSTEM FAILURE";
-    }
+    document.querySelector("#gameOver h1").innerText =
+        survived
+            ? "FRIDAY 5:00 PM SURVIVED!"
+            : "SYSTEM FAILURE";
 }
 
 /* =========================
