@@ -7,33 +7,89 @@
 
 <link rel="stylesheet" href="style.css">
 
+<style>
+/* Small inline improvement so it works even without CSS changes */
+.legend {
+    margin-top: 20px;
+    text-align: left;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 14px;
+}
+
+.legend h3 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.legend-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px 0;
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 8px;
+}
+
+.legend .icon {
+    font-size: 18px;
+}
+</style>
+
 </head>
 <body>
 
+<!-- LANDING SCREEN -->
 <div id="landing">
     <h1>SYNC SURVIVOR</h1>
+
     <p>
         Survive the chaos of school IT systems.<br>
         Catch successful syncs, avoid failures, and survive until Friday 5:00 PM.
     </p>
 
+    <!-- GAME LEGEND -->
+    <div class="legend">
+        <h3>🎮 How to Play</h3>
+
+        <div class="legend-item">
+            <span class="icon">✅ 💾 📘</span>
+            <span class="text">Good syncs — increase your score</span>
+        </div>
+
+        <div class="legend-item">
+            <span class="icon">❌ ⚠️</span>
+            <span class="text">Failures — lose health</span>
+        </div>
+
+        <div class="legend-item">
+            <span class="icon">☕</span>
+            <span class="text">Coffee — bonus / recovery boost</span>
+        </div>
+    </div>
+
     <button onclick="startGame()">START GAME</button>
 </div>
 
+<!-- HUD -->
 <div id="hud">
     <div>Score: <span id="score">0</span></div>
     <div>Health: <span id="health">❤️❤️❤️</span></div>
     <div id="mode">READY</div>
 </div>
 
+<!-- GAME MESSAGE -->
 <div id="message"></div>
 
+<!-- GAME OVER SCREEN -->
 <div id="gameOver">
     <h1>SYSTEM FAILURE</h1>
     <p>Friday 5:00 PM did not arrive safely.</p>
     <button onclick="restartGame()">Restart</button>
 </div>
 
+<!-- GAME CANVAS -->
 <canvas id="game"></canvas>
 
 <script src="game.js"></script>
