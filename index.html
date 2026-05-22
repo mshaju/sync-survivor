@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sync Survivor</title>
+
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        background: #050505;
+        font-family: Consolas, monospace;
+        color: #00ff99;
+    }
+
+    canvas {
+        display: block;
+        background: linear-gradient(to bottom, #0a0a0a, #111);
+    }
+
+    #hud {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 10;
+        font-size: 18px;
+        line-height: 1.8;
+        text-shadow: 0 0 8px #00ff99;
+    }
+
+    #message {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        font-size: 18px;
+        color: #ffcc00;
+        text-shadow: 0 0 10px #ffcc00;
+    }
+
+    #gameOver {
+        position: absolute;
+        inset: 0;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        background: rgba(0,0,0,0.9);
+        color: white;
+        z-index: 20;
+    }
+
+    #gameOver h1 {
+        font-size: 64px;
+        color: #ff4444;
+        margin: 0;
+    }
+
+    #gameOver p {
+        font-size: 24px;
+    }
+
+    button {
+        padding: 12px 24px;
+        font-size: 18px;
+        border: none;
+        border-radius: 8px;
+        background: #00ff99;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+</style>
+</head>
+<body>
+
+<div id="hud">
+    <div>Score: <span id="score">0</span></div>
+    <div>Health: <span id="health">❤️❤️❤️</span></div>
+    <div>Mode: <span id="mode">NORMAL</span></div>
+</div>
+
+<div id="message"></div>
+
+<div id="gameOver">
+    <h1>SYSTEM FAILURE</h1>
+    <p>Your weekend has been cancelled.</p>
+    <button onclick="restartGame()">Restart</button>
+</div>
+
+<canvas id="game"></canvas>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const player = {
+    x: canvas.width / 2,
+    y: canvas.height - 100,
+    width: 60,
+    height: 60,
+    speed: 7
+};
+
+let keys = {};
+let items = [];
+let score = 0;
+let health = 3;
+let gameRunning = true;
+let slowMotion = false;
+
+const messages = [
+    "Have you cleared cache?",
+    "Works in test environment.",
+    "Restarting SBSync...",
+    "Principal marked issue as urgent.",
+    "Linked server timeout detected.",
+    "SchoolBox sync delayed.",
+    "Friday 4:59 PM deployment."
+];
+
+document.addEventListener("keydown", e => keys[e.key] = true);
+document.addEventListener("keyup", e => keys[e.key] = false);
+
+function spawnItem() {
+    const types = [
+        { emoji: "✅", type: "good" },
+        { emoji: "💾", type: "good" },
+        { emoji: "📘", type: "good" },
+
+        { emoji: "❌", type: "bad" },
+        { emoji: "⚠️", type: "bad" },
+        { emoji: "💥", type: "bad" },
+
+        { emoji: "☕", type: "coffee" }
+    ];
+
+    const item = types[Math.floor(Math.random() * types.length)];
+
+    items.push({
+        x: Math.random() * (canvas.width - 50),
+        y: -50,
+        width: 50,
+        height: 50,
+        emoji: item.emoji,
+        type: item.type,
+        speed: slowMotion ? 2 : 4 + Math.random() * 3
+    });
+}
+
+setInterval(spawnItem, 700);
+
+function showMessage() {
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+    document.getElementById("message").innerText = msg;
+
+    setTimeout(() => {
+        document.getElementById("message").innerText = "";
+    }, 2000);
+}
+
+setInterval(showMessage, 4000);
+
+function update() {
+    if (!gameRunning) return;
+
+    if (keys["ArrowLeft"] || keys["a"]) {
+        player.x -= player.speed;
+    }
+
+    if (keys["ArrowRight"] || keys["d"]) {
+        player.x += player.speed;
+    }
+
+    player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+
+    items.forEach((item, index) => {
+        item.y += item.speed;
+
+        if (
+            item.x < player.x + player.width &&
+            item.x + item.width > player.x &&
+            item.y < player.y + player.height &&
+            item.y + item.height > player.y
+        ) {
+            if (item.type === "good") {
+                score += 10;
+            }
+
+            if (item.type === "bad") {
+                health--;
+                flashScreen();
+            }
+
+            if (item.type === "coffee") {
+                activateSlowMotion();
+            }
+
+            items.splice(index, 1);
+        }
+
+        if (item.y > canvas.height) {
+            items.splice(index, 1);
+        }
+    });
+
+    if (health <= 0) {
+        endGame();
+    }
+
+    document.getElementById("score").innerText = score;
+    document.getElementById("health").innerText = "❤️".repeat(health);
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // player
+    ctx.font = "50px Arial";
+    ctx.fillText("🧑‍💻", player.x, player.y);
+
+    // items
+    items.forEach(item => {
+        ctx.font = "40px Arial";
+        ctx.fillText(item.emoji, item.x, item.y);
+    });
+}
+
+function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+
+function activateSlowMotion() {
+    slowMotion = true;
+    document.getElementById("mode").innerText = "COFFEE BOOST ☕";
+
+    items.forEach(i => i.speed *= 0.4);
+
+    setTimeout(() => {
+        slowMotion = false;
+        document.getElementById("mode").innerText = "NORMAL";
+    }, 5000);
+}
+
+function flashScreen() {
+    document.body.style.background = "#330000";
+
+    setTimeout(() => {
+        document.body.style.background = "#050505";
+    }, 100);
+}
+
+function endGame() {
+    gameRunning = false;
+    document.getElementById("gameOver").style.display = "flex";
+}
+
+function restartGame() {
+    score = 0;
+    health = 3;
+    items = [];
+    gameRunning = true;
+    document.getElementById("gameOver").style.display = "none";
+}
+
+gameLoop();
+</script>
+
+</body>
+</html>
